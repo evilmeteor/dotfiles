@@ -1,7 +1,5 @@
 set nocompatible " Be iMproved
 
-" Plugins {{{
-
 " Install vim-plug if not installed
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -9,16 +7,12 @@ if empty(glob('~/.vim/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall | source $MYVIMRC
 endif
 
+" Plugins {{{
 filetype off
 call plug#begin('~/.vim/plugged')
-
-" Automatically install missing plugins on startup
-if !empty(filter(copy(g:plugs), '!isdirectory(v:val.dir)'))
-  autocmd VimEnter * PlugInstall | q
-endif
-
 Plug 'jeetsukumaran/vim-filebeagle'
 Plug 'joshdick/onedark.vim'
+Plug 'jreybert/vimagit'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'mattn/emmet-vim'
@@ -28,8 +22,6 @@ Plug 'Shougo/neocomplete.vim'
 Plug 'sjl/gundo.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-eunuch'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-git'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
