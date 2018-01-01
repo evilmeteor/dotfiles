@@ -13,61 +13,70 @@ call plug#begin('~/.vim/plugged')
 Plug 'jeetsukumaran/vim-filebeagle'
 Plug 'joshdick/onedark.vim'
 Plug 'jreybert/vimagit'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 
+\ 'dir': '~/.fzf', 
+\ 'do': './install --all' 
+\ }
 Plug 'junegunn/fzf.vim'
 Plug 'mattn/emmet-vim'
 Plug 'mhinz/vim-signify'
 Plug 'sheerun/vim-polyglot'
-Plug 'Shougo/neocomplete.vim'
-Plug 'sjl/gundo.vim'
-Plug 'skywind3000/asyncrun.vim'
-Plug 'tpope/vim-eunuch'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
 call plug#end()
-filetype plugin indent on 
+filetype plugin indent on  " load filetype-specific indent files
 "}}}
 
-" Variables and Settings {{{
-let mapleader="\<Space>" 
-let maplocalleader="\\"         
+" Plugin settings {{{
 let g:onedark_terminal_italics=1
 let g:onedark_termcolors = 16
-let g:onedark_terminal_italics = 1
 let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 let g:jsx_ext_required = 0
 let g:airline#extensions#tabline#enabled = 0
+let g:airline#extensions#ale#enabled = 1
 let g:airline_powerline_fonts = 1
 let g:airline_theme='onedark'
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
 let g:airline_symbols.space = "\ua0"
-let g:ale_sign_error = '●'      
-let g:ale_sign_warning = '.'
+let g:user_emmet_install_global = 0
+let g:user_emmet_settings = {
+\  'javascript.jsx' : {
+\    'extends' : 'jsx',
+\  },
+\}
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
 let g:ale_lint_on_enter = 1     
-let g:ale_fixers = {
-  \ 'javascript': ['eslint']
-  \ }
+let g:ale_linters = {}
+let g:ale_linters['javascript'] = ['eslint']
+let g:ale_fixers = {}
+let g:ale_fixers['javascript'] = ['eslint', 'prettier']
+let g:ale_fix_on_save = 1
+let g:ale_javascript_prettier_options = '--single-quote --trailing-comma es5'
+let g:ale_sign_column_always = 1
 
-nmap <leader><tab> <plug>(fzf-maps-n)
-xmap <leader><tab> <plug>(fzf-maps-x)
-omap <leader><tab> <plug>(fzf-maps-o)
-nnoremap <silent> <leader><enter> :Files<CR>
-nnoremap <leader>u :GundoToggle<CR>
+"nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+"nmap <silent> <C-j> <Plug>(ale_next_wrap)
+
+nnoremap <silent> <leader><enter> :FZF<CR>
 "}}}
 
 " Editing {{{
-syntax on                  " enable syntax processing
 colorscheme onedark        " colorscheme
-
-" No syntax on diffs 
+syntax on                  " enable syntax processing
 if &diff
-  syntax off
+  syntax off               " No syntax on diffs
 endif
 
-filetype plugin indent on  " load filetype-specific indent files
+" Use system clipboard
+set clipboard=unnamed
+if has('unnamedplus')
+  set clipboard=unnamed,unnamedplus
+endif
+
 set autoindent             " indent based on the previous line
 set smartindent            " indent based on language, mostly... - alt cindent
 set tabstop=2              " number of visual spaces per TAB
@@ -78,7 +87,7 @@ set smarttab               " use shiftwidth for newline beggning <Tab>
 set number                 " show line numbers
 set ruler                  " show line number and column position
 set showcmd                " show command in bottom bar
-set cursorline             " highlight current line
+set nocursorline           " don't highlight line. I switch dep on colorscheme
 set lazyredraw             " redraw only when we need to.
 set showmatch              " highlight matching [{()}]
 set nowrap                 " don't wrap text
@@ -95,9 +104,9 @@ set listchars+=precedes:<
 " wrap comments, insert comment leader on <Enter>'gq' comment formating, don't break lines on insert
 set formatoptions=crql  
 set noro                       " no read only annoyance
-set encoding=utf8             " default buffer encoding
+set encoding=utf-8             " default buffer encoding
 set hidden                     " hide buffers instead of being annoying
-set synmaxcol=256              " long lines make vim slow
+set synmaxcol=120              " long lines make vim slow
 set ttyfast                    " assume fast terminal
 set backspace=indent,eol,start " backspace through everything in insert mode
 set mousehide                  " hide mouse after chars typed
@@ -139,6 +148,7 @@ set foldmethod=syntax   " fold based on syntax
 "}}}
 
 " Backups and Undo {{{
+" TODO: Do we really need backups? 
 set backup       
 set backupdir=~/.tmp,~/tmp,/var/tmp,/tmp
 set backupskip=/tmp/*,/private/tmp/*
@@ -151,16 +161,17 @@ set history=1000
 
 " Status line, window title, and command area settings {{{
 set laststatus=2   " always show the statusline
-set cmdheight=1    " make the command area two lines high
+set cmdheight=1    " make the command area one line high
 set noshowmode     " don't show the mode since Airline shows it
 set title          " set the title of the window in the terminal to the file
 set showcmd        " show leader waiting for next keypress
 "}}}
 
 " Key Bindings {{{
-
+let mapleader="\<Space>" 
+let maplocalleader="\\"         
 " double tap kills 
-map <space><space> :let @/=''<cr> " clear search
+map <space><space> :let @/=''<cr>
 " jk is escape
 inoremap jk <esc>
 " save session
@@ -213,54 +224,12 @@ map <C-t> <nop>
 
 " Auto Commands {{{
 if has("autocmd")
-  " set vim files foldmethod automatically
   autocmd FileType vim setlocal foldmethod=marker
-  " for HTML, generally format text, but if a long line has been created 
-  " leave it alone when editing
-  au FileType html,xhtml setlocal fo+=tl                      
-  " eslint + Prettier on save 
-  autocmd BufWritePost *.js AsyncRun -post=checktime ./node_modules/.bin/eslint --fix %
-  " Fix trailing whitespace in my most used programming langauges
-  autocmd BufWritePre *.py,*.js silent! :StripTrailingWhiteSpace
-  " When editing a file, always jump to the last cursor position.
-  " This must be after the uncompress commands.
-  autocmd BufReadPost *
-        \ if line("'\"") > 1 && line ("'\"") <= line("$") |
-        \   exe "normal! g`\"" |
-        \ endif
-  " Open help files in a vertical split
-  au BufWinEnter *.txt if &ft == 'help' | wincmd L | endif
+  autocmd FileType html,css,javascript EmmetInstall
+  " Open help in vertical split
+  autocmd BufWinEnter *.txt if &ft == 'help' | wincmd L | endif
 endif
 "}}}
 
 " Functions {{{
-" strips trailing whitespace at the end of files. this
-" is called on buffer write in the autogroup above.
-function! <SID>StripTrailingWhitespaces()
-    " save last search & cursor position
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    let @/=_s
-    call cursor(l, c)
-endfunction
-
-" Platform detection functions
-silent function! OSX()
-    return has('macunix')
-endfunction
-silent function! LINUX()
-    return has('unix') && !has('macunix') && !has('win32unix')
-endfunction
-silent function! WINDOWS()
-    return  (has('win16') || has('win32') || has('win64'))
-endfunction
-silent function! UNIXLIKE()
-    return !WINDOWS()
-endfunction
-silent function! FREEBSD()
-  let s:uname = system("uname -s")
-  return (match(s:uname, 'FreeBSD') >= 0)
-endfunction
 "}}}
