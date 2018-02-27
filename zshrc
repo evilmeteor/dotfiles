@@ -52,7 +52,7 @@ HIST_STAMPS="dd.mm.yyyy"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git github node npm zsh-nvm)
+plugins=(git github node npm yarn zsh-nvm)
  
 source $ZSH/oh-my-zsh.sh
 
@@ -105,6 +105,8 @@ export PATH=$PATH:~/.yarn/bin
 alias lsa='ls -lah --group-directories-first'
 alias ll='ls -lh --group-directories-first'
 alias la='ls -lAh --group-directories-first'
+
+alias startnpmserver='npm start > /dev/null 2>&1 &'
 
 # Use fzf for fuzzy file search 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

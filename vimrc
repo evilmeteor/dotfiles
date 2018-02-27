@@ -48,7 +48,7 @@ let g:user_emmet_settings = {
 \  },
 \}
 let g:ale_sign_error = '✘'
-let g:ale_sign_warning = '⚠'
+let g:ale_sign_error = '●'      
 let g:ale_lint_on_enter = 1     
 let g:ale_linters = {}
 let g:ale_linters['javascript'] = ['eslint']
@@ -57,11 +57,13 @@ let g:ale_fixers['javascript'] = ['eslint', 'prettier']
 let g:ale_fix_on_save = 1
 let g:ale_javascript_prettier_options = '--single-quote --trailing-comma es5'
 let g:ale_sign_column_always = 1
-
 "nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 "nmap <silent> <C-j> <Plug>(ale_next_wrap)
-
-nnoremap <silent> <leader><enter> :FZF<CR>
+let g:filebeagle_suppress_keymaps = 1
+map <silent> -  <Plug>FileBeagleOpenCurrentBufferDir
+nnoremap <silent> <leader>f :Files<CR>
+nnoremap <silent> <leader>b :Buffers<CR>
+nnoremap <silent> <leader>m :Maps<CR>
 "}}}
 
 " Editing {{{
@@ -168,8 +170,7 @@ set showcmd        " show leader waiting for next keypress
 "}}}
 
 " Key Bindings {{{
-let mapleader="\<Space>" 
-let maplocalleader="\\"         
+let mapleader="\\" 
 " double tap kills 
 map <space><space> :let @/=''<cr>
 " jk is escape
